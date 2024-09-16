@@ -12,6 +12,8 @@ openai = "^1.45.0"
 werkzeug = "^3.0.4"
 pypdf2 = "^3.0.1"
 python-docx = "^1.1.2"
+psycopg2-binary = "^2.9.9"
+flask-sqlalchemy = "^3.1.1"
 
 
 [build-system]

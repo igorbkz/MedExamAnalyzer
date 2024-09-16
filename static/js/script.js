@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loading = document.getElementById('loading');
     const result = document.getElementById('result');
     const error = document.getElementById('error');
+    const pastAnalysesList = document.getElementById('past-analyses');
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok) {
                 showResult(data.analysis);
+                loadPastAnalyses();
             } else {
                 showError(data.error || 'An error occurred during analysis.');
             }
@@ -50,4 +52,34 @@ document.addEventListener('DOMContentLoaded', () => {
         error.textContent = message;
         error.classList.remove('hidden');
     }
+
+    async function loadPastAnalyses() {
+        try {
+            const response = await fetch('/analyses');
+            const analyses = await response.json();
+            
+            pastAnalysesList.innerHTML = '';
+            analyses.forEach(analysis => {
+                const li = document.createElement('li');
+                li.textContent = `${analysis.filename} (${new Date(analysis.created_at).toLocaleString()})`;
+                li.addEventListener('click', () => loadAnalysis(analysis.id));
+                pastAnalysesList.appendChild(li);
+            });
+        } catch (err) {
+            console.error('Error loading past analyses:', err);
+        }
+    }
+
+    async function loadAnalysis(id) {
+        try {
+            const response = await fetch(`/analysis/${id}`);
+            const analysis = await response.json();
+            showResult(analysis.result);
+        } catch (err) {
+            showError('Error loading analysis.');
+        }
+    }
+
+    // Load past analyses when the page loads
+    loadPastAnalyses();
 });
