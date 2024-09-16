@@ -4,11 +4,12 @@ from werkzeug.utils import secure_filename
 from utils.openai_helper import analyze_medical_exam
 import PyPDF2
 from io import BytesIO
+from docx import Document
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024  # 1 MB limit
 
-ALLOWED_EXTENSIONS = {'txt', 'pdf'}
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'docx'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -37,6 +38,9 @@ def analyze():
                 file_content = ""
                 for page in pdf_reader.pages:
                     file_content += page.extract_text()
+            elif file_extension == 'docx':
+                doc = Document(BytesIO(file.read()))
+                file_content = "\n".join([paragraph.text for paragraph in doc.paragraphs])
             else:
                 file_content = file.read().decode('utf-8')
             
